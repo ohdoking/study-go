@@ -329,3 +329,219 @@ for i := 0; i < 10; i++ {
     defer fmt.Println(i)
 }
 ```
+
+## More types
+
+### Pointer
+
+Go has pointers. A pointer holds the memory address of a value.
+The type *T is a pointer to a T value. Its zero value is nil.
+```
+var p *int
+```
+
+The & operator generates a pointer to its operand.
+```
+i := 42
+p = &i
+```
+
+The * operator denotes the pointer's underlying value.
+```
+fmt.Println(*p) // read i through the pointer p
+*p = 21         // set i through the pointer p
+```
+
+This is known as "dereferencing" or "indirecting".
+
+### Structs
+
+A struct is a collection of fields.
+
+```
+type [struct_name] struct {
+    [struct_fields]
+}
+```
+
+#### Pointers to structs
+
+Struct fields can be accessed through a struct pointer.
+
+To access the field X of a struct when we have the struct pointer p we could write (*p).X. However, that notation is cumbersome, so the language permits us instead to write just p.X, without the explicit dereference.
+
+```
+type Vertex struct {
+    X int
+    Y int
+}
+
+func main() {
+    v := Vertex{1, 2}
+    p := &v
+    p.X = 1e9
+    fmt.Println(v)
+    
+    z := v
+    z.X = 1
+    fmt.Println(v)
+    fmt.Println(z)
+}
+//result
+{1000000000 2}
+{1000000000 2}
+{1 2}
+```
+
+#### Struct Literals
+
+A struct literal denotes a newly allocated struct value by listing the values of its fields.
+
+You can list just a subset of fields by using the Name: syntax. (And the order of named fields is irrelevant.)
+
+The special prefix & returns a pointer to the struct value.
+
+```
+type Vertex struct {
+    X, Y int
+}
+
+var (
+    v1 = Vertex{1, 2}  // has type Vertex
+    v2 = Vertex{X: 1}  // Y:0 is implicit
+    v3 = Vertex{}      // X:0 and Y:0
+    p  = &Vertex{1, 2} // has type *Vertex
+)
+
+func main() {
+    fmt.Println(v1, p, v2, v3)
+    //result : {1 2} &{1 2} {1 0} {0 0}
+}
+```
+
+### Arrays
+
+The type [n]T is an array of n values of type T.
+
+The expression:
+```
+var a [10]int
+```
+declares a variable a as an array of ten integers.
+
+#### Slices
+An array has a fixed size. A slice, on the other hand, is a dynamically-sized, flexible view into the elements of an array. In practice, slices are much more common than arrays.
+
+The type []T is a slice with elements of type T.
+
+A slice is formed by specifying two indices, a low and high bound, separated by a colon:
+```
+a[low : high]
+```
+
+This selects a half-open range which includes the first element, but excludes the last one.
+
+The following expression creates a slice which includes elements 1 through 3 of a:
+```
+a[1:4]
+```
+
+#### Slices are like references to arrays
+
+A slice does not store any data, it just describes a section of an underlying array.
+Changing the elements of a slice modifies the corresponding elements of its underlying array.
+Other slices that share the same underlying array will see those changes.
+
+```
+func main() {
+    names := [4]string{
+        "John",
+        "Paul",
+        "George",
+        "Ringo",
+    }
+    fmt.Println(names)
+
+    a := names[0:2]
+    b := names[1:3]
+    fmt.Println(a, b)
+
+    b[0] = "XXX"
+    fmt.Println(a, b)
+    fmt.Println(names)
+}
+//result
+[John Paul George Ringo]
+[John Paul] [Paul George]
+[John XXX] [XXX George]
+[John XXX George Ringo]
+```
+
+#### Slice literals
+
+A slice literal is like an array literal without the length.
+
+#### Slice defaults
+
+When slicing, you may omit the high or low bounds to use their defaults instead.
+The default is zero for the low bound and the length of the slice for the high bound.
+
+For the array
+```
+var a [10]int
+```
+
+these slice expressions are equivalent:
+```
+a[0:10]
+a[:10]
+a[0:]
+a[:]
+```
+
+#### Slice length and capacity
+A slice has both a length and a capacity.
+
+The length of a slice is the number of elements it contains.
+
+The capacity of a slice is the number of elements in the underlying array, counting from the first element in the slice.
+
+The length and capacity of a slice s can be obtained using the expressions `len(s)` and `cap(s)`.
+
+You can extend a slice's length by re-slicing it, provided it has sufficient capacity. Try changing one of the slice operations in the example program to extend it beyond its capacity and see what happens.
+
+```
+func main() {
+    s := []int{2, 3, 5, 7, 11, 13}
+    printSlice(s)
+
+    // Slice the slice to give it zero length.
+    s = s[:0]
+    printSlice(s)
+
+    // Extend its length.
+    s = s[:4]
+    printSlice(s)
+
+    // Drop its first two values.
+    s = s[2:]
+    printSlice(s)
+}
+
+func printSlice(s []int) {
+    fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+}
+//result
+len=6 cap=6 [2 3 5 7 11 13]
+len=0 cap=6 []
+len=4 cap=6 [2 3 5 7]
+len=2 cap=4 [5 7]
+```
+
+#### Nil slices
+
+The zero value of a slice is nil.
+A nil slice has a length and capacity of 0 and has no underlying array.
+
+
+
