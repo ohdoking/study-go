@@ -1,5 +1,9 @@
 package name
 
-func returnMyId() string{
+func ReturnMyId() string{
 	return "ohdoking"
+}
+
+func AppendCharacter() string{
+	return "ohdoking" + "1"
 }
