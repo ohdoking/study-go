@@ -8,9 +8,9 @@ type people struct {
 type peopleInfo people
 
 func SetPeople(name string, age int) {
-	peopleInfo = people {
-		name : name,
-		age : age
+	peopleInfo = people{
+		name: name,
+		age: age
 	}
 }
 
