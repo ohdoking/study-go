@@ -1,17 +1,14 @@
 package people
 
 type people struct {
-	name string
-	age int
+	Name string
+	Age int
 }
 
-type peopleInfo people
+var peopleInfo people
 
 func SetPeople(name string, age int) {
-	peopleInfo = people{
-		name: name,
-		age: age
-	}
+	peopleInfo = people {Name: name, Age: age}
 }
 
 func GetPeople() people{
